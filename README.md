@@ -18,6 +18,6 @@ If it comes to more detailed technical steps we could follow is:
 (Assuming that we have K8s cluster spawned and configured)
 * I'd follow AWS post around configuring k8s-cloudwatch-adapter - https://aws.amazon.com/blogs/compute/scaling-kubernetes-deployments-with-amazon-cloudwatch-metrics/ - of course adjusting where necessary
 * Then I'd configure RabbitMQ adapter for CloudWatch to send relevant metrics
-
+* Once I have all relevant metrics in CloudWatch (App Load Balancer metrics are supported by CloudWatch by default) I'd 
 
 ### Scenario 2
