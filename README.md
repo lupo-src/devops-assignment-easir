@@ -13,6 +13,11 @@ My suggestions would be to use following tech stack:
 * AWS CloudWatch to gather metrics from Application Load Balancer on HTTP requests as well as from AWS SQS on queue status or RabbitMQ queue status
 * In order to monitor RabbitMQ queue with CloudWatch we need to use following adapter: https://github.com/deepakputhraya/monitor-rabbitmq
 
+If it comes to more detailed technical steps we could follow is:
+
+(Assuming that we have K8s cluster spawned and configured)
+* I'd follow AWS post around configuring k8s-cloudwatch-adapter - https://aws.amazon.com/blogs/compute/scaling-kubernetes-deployments-with-amazon-cloudwatch-metrics/ - of course adjusting where necessary
+* Then I'd configure RabbitMQ adapter for CloudWatch to send relevant metrics
 
 
 ### Scenario 2
