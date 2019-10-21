@@ -24,4 +24,61 @@ If it comes to more detailed technical steps we could follow is:
 That would be more or less it. 
 
 ### Scenario 2
-In this scenario the only major diffrence would be to point HPA not to external metrics from AWS Cloud Watch but to metrics from metric-server (which has to be deployed as a plugin to the cluster beforehand)
+In this scenario the only major diffrence would be to point HPA not to external metrics from AWS Cloud Watch but to custom metrics within on-prem cluster. From what I remember, EASI'R has already implemented Prometheus monitoring so in this case I'd use prometheus-adapter (https://github.com/DirectXMan12/k8s-prometheus-adapter) to leverage Custom Metrics API and use custom.metrics.k8s.io/v1beta1 which is suitable for use with the auto scaling/v2 Horizontal Pod Autoscaler.
+
+Then we could levarage following ConfigMap to tell prometheus-adapter to gather specific metric (in this case HTTP requests):
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: prometheus-adapter
+    chart: prometheus-adapter-v0.1.2
+    heritage: Tiller
+    release: prometheus-adapter
+  name: prometheus-adapter
+data:
+  config.yaml: |
+    rules:
+    - seriesQuery: 'http_requests_total{kubernetes_namespace!="",kubernetes_pod_name!=""}'
+      resources:
+        overrides:
+          kubernetes_namespace: {resource: "namespace"}
+          kubernetes_pod_name: {resource: "pod"}
+      name:
+        matches: "^(.*)_total"
+        as: "${1}_per_second"
+      metricsQuery: 'sum(rate(<<.Series>>{<<.LabelMatchers>>}[2m])) by (<<.GroupBy>>)'
+...
+```
+
+Finally we would need to set up the HPA (Horizontal Pod Autoscaler) for our deployment:
+```yaml
+---
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: test-app
+spec:
+  scaleTargetRef:
+    # point the HPA to sample app
+    #apiVersion: apps/v1
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    name: test-app
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+  # use a "Pods" metric, which takes the average of the
+  # given metric across all pods controlled by the autoscaling target
+  - type: Pods
+    pods:
+      # use the metric that you used above: pods/http_requests
+      metricName: http_requests
+      # target 500 milli-requests per second,
+      # which is 1 request every two seconds
+      targetAverageValue: 500m
+```
+(samples from: https://icicimov.github.io/blog/kubernetes/Kubernetes_HPA_Autoscaling_with_Custom_Metrics/)
+
