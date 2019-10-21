@@ -82,3 +82,4 @@ spec:
 ```
 (samples from: https://icicimov.github.io/blog/kubernetes/Kubernetes_HPA_Autoscaling_with_Custom_Metrics/)
 
+For RabbitMQ queue scenario would be similar, we could use RabbitMQ-exporter (https://github.com/kbudde/rabbitmq_exporter) and create proper ConfigMap for prometheus-adapter to query eg. queue_messages_published_total (Count of messages published) from the exporter. And eventually use it in HPA.
