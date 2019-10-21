@@ -1,4 +1,4 @@
-# devops-assignment-easir
+# devops-assignment-k8s-scalling
 ## Topic: How would you implement scalling for Kubernetes pods based on incomming HTTP connections and/or RabbitMQ queue length?
 
 ### Assumptions
@@ -24,7 +24,7 @@ If it comes to more detailed technical steps we could do us follow:
 That would be more or less it. 
 
 ### Scenario 2
-In this scenario the only major diffrence would be to point HPA not to external metrics from AWS Cloud Watch but to custom metrics within on-prem cluster. From what I remember, EASI'R has already implemented Prometheus monitoring so in this case I'd use prometheus-adapter (https://github.com/DirectXMan12/k8s-prometheus-adapter) to leverage Custom Metrics API and use custom.metrics.k8s.io/v1beta1 which is suitable for use with the auto scaling/v2 Horizontal Pod Autoscaler.
+In this scenario the only major diffrence would be to point HPA not to external metrics from AWS Cloud Watch but to custom metrics within on-prem cluster. From what I remember, Prometheus monitoring is already implemented so in this case I'd use prometheus-adapter (https://github.com/DirectXMan12/k8s-prometheus-adapter) to leverage Custom Metrics API and use custom.metrics.k8s.io/v1beta1 which is suitable for use with the auto scaling/v2 Horizontal Pod Autoscaler.
 
 Then we could levarage following ConfigMap to tell prometheus-adapter to gather specific metric (in this case HTTP requests):
 
